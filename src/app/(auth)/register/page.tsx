@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,8 +13,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -32,10 +36,26 @@ export default function RegisterPage() {
     const password = formData.get('password') as string;
 
     try {
-      // TODO: Implement registration
-      console.log('Register:', { name, email, password });
-      // For now, redirect to onboarding
-      window.location.href = '/onboarding';
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Something went wrong');
+        return;
+      }
+
+      // Show success message and redirect to login
+      setSuccess(true);
+      setTimeout(() => {
+        router.push('/login?registered=true');
+      }, 1500);
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
@@ -45,9 +65,29 @@ export default function RegisterPage() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    // TODO: Implement Google sign in
-    console.log('Google sign in');
+    try {
+      await signIn('google', { callbackUrl: '/dashboard' });
+    } catch {
+      setError('Failed to sign in with Google');
+      setIsLoading(false);
+    }
   };
+
+  if (success) {
+    return (
+      <Card className="border-2">
+        <CardContent className="p-8 text-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto">
+            <CheckCircle2 className="w-8 h-8 text-success" />
+          </div>
+          <h2 className="text-2xl font-bold">Account Created!</h2>
+          <p className="text-muted-foreground">
+            Redirecting you to sign in...
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="border-2">
@@ -148,18 +188,18 @@ export default function RegisterPage() {
               htmlFor="terms"
               className="text-sm text-muted-foreground leading-relaxed cursor-pointer"
             >
-            I agree to the{' '}
-            <Link href="/terms" className="text-primary hover:underline" target="_blank">
-              Terms of Service
-            </Link>{' '}
-            and{' '}
-            <Link href="/privacy" className="text-primary hover:underline" target="_blank">
-              Privacy Policy
-            </Link>
+              I agree to the{' '}
+              <Link href="/terms" className="text-primary hover:underline" target="_blank">
+                Terms of Service
+              </Link>{' '}
+              and{' '}
+              <Link href="/privacy" className="text-primary hover:underline" target="_blank">
+                Privacy Policy
+              </Link>
             </label>
           </div>
 
-          <Button type="submit" className="w-full h-11" disabled={isLoading}>
+          <Button type="submit" className="w-full h-11" disabled={isLoading || !acceptedTerms}>
             {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             Create Account
           </Button>
@@ -191,4 +231,3 @@ export default function RegisterPage() {
     </Card>
   );
 }
-

@@ -2,18 +2,22 @@
 
 import { Suspense, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CheckCircle2 } from 'lucide-react';
 
 function LoginForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+  const justRegistered = searchParams.get('registered') === 'true';
+  
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,12 +31,22 @@ function LoginForm() {
     const password = formData.get('password') as string;
 
     try {
-      // TODO: Implement sign in with credentials
-      console.log('Sign in:', { email, password, callbackUrl });
-      // For now, redirect to dashboard
-      window.location.href = callbackUrl;
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('Invalid email or password');
+        return;
+      }
+
+      // Redirect to callback URL or dashboard
+      router.push(callbackUrl);
+      router.refresh();
     } catch {
-      setError('Invalid email or password');
+      setError('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -40,8 +54,12 @@ function LoginForm() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    // TODO: Implement Google sign in
-    console.log('Google sign in');
+    try {
+      await signIn('google', { callbackUrl: '/dashboard' });
+    } catch {
+      setError('Failed to sign in with Google');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -53,6 +71,13 @@ function LoginForm() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {justRegistered && (
+          <div className="p-3 text-sm text-success bg-success/10 rounded-md flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4" />
+            Account created successfully! Please sign in.
+          </div>
+        )}
+
         {error && (
           <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
             {error}

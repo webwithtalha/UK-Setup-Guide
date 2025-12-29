@@ -1,37 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# UK Setup Guide
+
+Your complete companion for settling into UK life. Navigate visa requirements, avoid scams, and get personalized guidance tailored to your situation.
+
+## Features
+
+- 🗺️ **Personalized Roadmap** - Step-by-step tasks based on your visa type and location
+- 🛡️ **Scam Shield** - Detect rental, job, and visa scams before they cost you
+- 📝 **Ready Templates** - Professional email templates for landlords, banks, and more
+- 📁 **Document Vault** - Secure storage with time-limited sharing links
+- 📚 **Local Resources** - Curated directory of GPs, legal aid, and community support
+
+## Tech Stack
+
+- **Framework**: Next.js 16+ (App Router)
+- **Language**: TypeScript
+- **Database**: MongoDB Atlas + Mongoose
+- **Auth**: NextAuth.js v5
+- **UI**: shadcn/ui + Tailwind CSS
+- **Payments**: Stripe
+- **Email**: Resend
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18+
+- npm or yarn
+- MongoDB Atlas account
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+   - Copy `.env.local` and fill in your values
+   - Required: `MONGODB_URI`, `AUTH_SECRET`
+
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000)
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── (marketing)/     # Landing, pricing pages
+│   ├── (auth)/          # Login, register
+│   ├── (dashboard)/     # Protected user routes
+│   ├── admin/           # Admin panel
+│   └── api/             # API route handlers
+├── components/
+│   ├── ui/              # shadcn/ui components
+│   ├── shared/          # Reusable components
+│   └── features/        # Feature-specific components
+├── lib/
+│   ├── db/              # MongoDB connection & models
+│   ├── services/        # Business logic
+│   └── utils/           # Helper functions
+└── types/               # TypeScript type definitions
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+See `.env.local` for all required environment variables:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `MONGODB_URI` - MongoDB connection string
+- `AUTH_SECRET` - NextAuth.js secret (generate with `openssl rand -base64 32`)
+- `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` - Google OAuth credentials
+- `STRIPE_*` - Stripe API keys
+- `RESEND_API_KEY` - Email service key
 
-## Learn More
+## License
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# UK-Setup-Guide
+Private - All rights reserved

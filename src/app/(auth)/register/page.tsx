@@ -148,14 +148,14 @@ export default function RegisterPage() {
               htmlFor="terms"
               className="text-sm text-muted-foreground leading-relaxed cursor-pointer"
             >
-              I agree to the{' '}
-              <Link href="/terms" className="text-primary hover:underline">
-                Terms of Service
-              </Link>{' '}
-              and{' '}
-              <Link href="/privacy" className="text-primary hover:underline">
-                Privacy Policy
-              </Link>
+            I agree to the{' '}
+            <Link href="/terms" className="text-primary hover:underline" target="_blank">
+              Terms of Service
+            </Link>{' '}
+            and{' '}
+            <Link href="/privacy" className="text-primary hover:underline" target="_blank">
+              Privacy Policy
+            </Link>
             </label>
           </div>
 

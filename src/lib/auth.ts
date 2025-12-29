@@ -32,9 +32,7 @@ declare module 'next-auth' {
   interface User {
     role: UserRole;
   }
-}
 
-declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
     role: UserRole;
@@ -120,8 +118,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     // Handle session creation
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
+        session.user.id = token.id as string;
+        session.user.role = token.role as UserRole;
       }
       return session;
     },
@@ -137,13 +135,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           if (!existingUser) {
             // Create new user from OAuth
-            existingUser = await User.create({
+            const newUser = new User({
               email: user.email,
               name: user.name,
               image: user.image,
               emailVerified: new Date(),
               role: 'user',
             });
+            existingUser = await newUser.save();
           } else {
             // Update existing user
             await User.findByIdAndUpdate(existingUser._id, {

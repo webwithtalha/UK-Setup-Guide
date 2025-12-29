@@ -121,8 +121,9 @@ const ProfileSchema = new Schema<IProfile>(
     toJSON: {
       virtuals: true,
       transform: (_doc, ret) => {
-        delete ret.__v;
-        return ret;
+        const { __v, ...rest } = ret;
+        void __v;
+        return rest;
       },
     },
   }

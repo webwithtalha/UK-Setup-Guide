@@ -3,42 +3,45 @@
  * Handles connection pooling and caching for serverless environments
  */
 
-import mongoose from 'mongoose';
+import mongoose, { Mongoose } from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error(
-    'Please define the MONGODB_URI environment variable inside .env.local'
-  );
-}
 
 /**
  * Global type declaration for mongoose connection caching
  */
+interface MongooseCache {
+  conn: Mongoose | null;
+  promise: Promise<Mongoose> | null;
+}
+
 declare global {
   // eslint-disable-next-line no-var
-  var mongoose: {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
-  };
+  var mongooseCache: MongooseCache | undefined;
 }
 
 /**
  * Cached connection for serverless environments
  * Prevents exhausting database connections on every request
  */
-let cached = global.mongoose;
+let cached: MongooseCache = global.mongooseCache ?? { conn: null, promise: null };
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+if (!global.mongooseCache) {
+  global.mongooseCache = cached;
 }
 
 /**
  * Connect to MongoDB with connection pooling
  * @returns Mongoose connection instance
  */
-export async function connectDB(): Promise<typeof mongoose> {
+export async function connectDB(): Promise<Mongoose> {
+  // Check if URI is defined
+  if (!MONGODB_URI) {
+    throw new Error(
+      'Please define the MONGODB_URI environment variable inside .env.local'
+    );
+  }
+
   // Return cached connection if available
   if (cached.conn) {
     return cached.conn;
@@ -55,10 +58,10 @@ export async function connectDB(): Promise<typeof mongoose> {
     };
 
     cached.promise = mongoose
-      .connect(MONGODB_URI!, opts)
-      .then((mongoose) => {
+      .connect(MONGODB_URI, opts)
+      .then((mongooseInstance) => {
         console.log('✅ MongoDB connected successfully');
-        return mongoose;
+        return mongooseInstance;
       })
       .catch((error) => {
         cached.promise = null;
@@ -111,4 +114,3 @@ export function getConnectionStatus(): string {
 }
 
 export default connectDB;
-

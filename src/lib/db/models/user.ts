@@ -63,9 +63,10 @@ const UserSchema = new Schema<IUser>(
     toJSON: {
       virtuals: true,
       transform: (_doc, ret) => {
-        delete ret.hashedPassword;
-        delete ret.__v;
-        return ret;
+        const { hashedPassword, __v, ...rest } = ret;
+        void hashedPassword;
+        void __v;
+        return rest;
       },
     },
   }

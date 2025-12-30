@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { UserMenu } from '@/components/shared/user-menu';
+import { ThemeToggle } from '@/components/shared/theme-toggle';
 import { auth } from '@/lib/auth';
 
 const navigation = [
@@ -98,6 +99,9 @@ export default async function DashboardLayout({
 
           {/* Right side */}
           <div className="flex items-center gap-2">
+            {/* Theme toggle */}
+            <ThemeToggle />
+
             {/* Notifications */}
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="w-5 h-5" />
